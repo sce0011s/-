@@ -22,7 +22,7 @@ library(lmtest)
 library(parallel)
 library(snow)
 # #DATA STEP
-data <- read.xlsx("C:\\Users\\steven\\Desktop\\時價登錄資料\\data.xlsx") #讀取資料
+data <- read.xlsx("data.xlsx") #讀取資料
 
 data[,3] <- str_replace(data[,3],paste0("臺北市",data[,1]),"")
 data[,3] <- str_replace(data[,3],paste0("台北市",data[,1]),"")
