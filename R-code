@@ -87,35 +87,20 @@ rmse <- function(x){
 lm_model <- lm(unitprice~.,training_data)
 qqnorm(lm_model$residuals);qqline(lm_model$residuals)
 summary(lm_model)
-# test_data$lm_price <- predict(lm_model,test_data)
 rmse(lm_model) #test:38873.11,train:39091.54
 t <- boxcox(lm_model)$x[which.max(boxcox(lm_model)$y)]
 boxcox_lm_model <- lm((unitprice^t-1)/t~.,training_data)
-# ncvTest(boxcox_lm_model) #同質性
-# dwtest(boxcox_lm_model) #獨立性(不滿足)
 qqnorm(boxcox_lm_model$residuals);qqline(boxcox_lm_model$residuals)
 summary(boxcox_lm_model)
 sqrt(sum((test_data$unitprice-(predict(boxcox_lm_model,test_data)*t+1)^(1/t))^2)/length(test_data$unitprice)) #38762.98
 sqrt(sum((training_data$unitprice-(predict(boxcox_lm_model,training_data)*t+1)^(1/t))^2)/length(training_data$unitprice)) #38998.77
 #######################################################################################################################################
 #rpart迴歸樹
-# tree_model <- rpart(unitprice~.,data = training_data,method = "anova",cp=0.0001)
-# tree_model$cptable[which.min(tree_model$cptable[,"xerror"]),"CP"]  #cp=0.0001670665
-# tree_model_2 <- rpart(unitprice~.,data = training_data,method = "anova",cp=0.0001670665)
-# rmse(tree_model)
-# rmse(tree_model_2)
 cpu.cores <- detectCores()
 cl = makeCluster(cpu.cores,type='SOCK')
 clusterExport(cl,c("rpart","training_data","model"))
 tree_model = parSapply(cl,X=seq(0.1,0.001,-0.001),FUN=function(cp){list(rpart(unitprice~.,data = training_data,method = "anova",cp=cp))})
 stopCluster(cl)
-
-# tree_model1 <- rpart(unitprice~.,data = training_data,method = "anova",cp=0)
-# rpart.plot(tree_model1)
-# tree_model2 <- rpart(unitprice~.,data = training_data,method = "anova",cp=0.01)
-# rpart.plot(tree_model2)
-# tree_model3 <- rpart(unitprice~.,data = training_data,method = "anova",cp=0.1)
-# rpart.plot(tree_model3)
 
 ggplot()+
   geom_line(data=tree_rmse,aes(x=CP,y=predict,colour="predict"),size=1)+
